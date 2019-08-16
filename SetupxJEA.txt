@@ -1,0 +1,60 @@
+# Step-by-Step
+# https://blogs.technet.microsoft.com/privatecloud/2014/05/14/just-enough-administration-step-by-step/
+# https://docs.microsoft.com/en-us/powershell/wmf/setup/install-configure
+
+## Install WMF
+# Check if running WMF >= 5.0
+# 1. Open PowerShell as administrator, then check the current version
+
+$PSVersionTable.PSVersion
+
+# If WMF < 5.0 Then
+# Download the WMF package from: https://docs.microsoft.com/en-us/powershell/wmf/setup/install-configure
+# 1. Open PowerShell as Administrator, then navigate to the folder containing the MSU file
+# 2. Double-click the MSU to run it
+
+## Check if WinRM is started
+Test-WsMan
+
+## If not started
+Enable-PSRemoting –Force
+
+# Set start mode to automatic
+Set-Service WinRM -StartMode Automatic
+
+# Verify start mode and state - it should be running
+Get-WmiObject -Class win32_service | Where-Object {$_.name -like "WinRM"}
+
+## Check if xJea is installed
+# 1. Open PowerShell as Administrator
+# 2. Check if cmdlets is available
+Get-Command *Module
+
+# 3. Verify xJEA
+Find-Module –Name ‘xJEA’ -Verbose
+
+# 4. Install xJEA
+Install-Module –Name ‘xJEA’
+
+# 5. Verify that the ‘xJEA’ folder is there
+ls -LiteralPath C:\Program Files\WindowsPowerShell\Modules
+
+# 6. SetupJEA
+cd C:\Program Files\WindowsPowerShell\Modules\xJea\0.2.16.6\Examples
+
+# 7. Run
+.\SetupJEA.ps1
+
+# 8. Verify by Running the script 
+.\Demo1.ps1
+
+# 9. Verify 
+Get-PSSessionConfiguration -Name Demo1EP
+
+# 10. Next run Enter-PSSession –ComputerName localhost –ConfigurationName demo1ep.  You should see your prompt change 
+# to [localhost]: PS] indicating you are now in the special constrained session configuration, (or JEA endpoint for short).  
+# Run Get-Command.  Observe the limited set of commands available.
+
+# 11. Validate that you cannot run other typical Windows PowerShell commands.  As an example, try to run Get-Content. 
+
+# 12. To exit the JEA endpoint, run Exit.  You return to your previous Windows PowerShell session.
